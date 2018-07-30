@@ -24,6 +24,9 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST', 'GET'])
 def main():
+    tunnel_key = request.args.get('tunnel_key')
+    if tunnel_key != getenv("TUNNEL_KEY"):
+        return b"Invalid tunnel_key GET parameter", 401
     if request.method == 'POST':
         # TODO : Only allow port 80 access from VPC
         user = id_generator()

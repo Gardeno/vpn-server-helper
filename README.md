@@ -8,6 +8,6 @@ git clone https://github.com/Gardeno/tunnel-server.git
 cd tunnel-server && virtualenv -p python3 venv && ./venv/bin/pip install -r requirements.txt
 sudo ln -s /home/ubuntu/tunnel-server/conf/nginx/tunnel.gardeno.global /etc/nginx/sites-enabled/tunnel.gardeno.global
 sudo ln -s /home/ubuntu/tunnel-server/conf/supervisor/tunnel.gardeno.global.conf /etc/supervisor/conf.d/tunnel.gardeno.global.conf
-echo 'TUNNEL_SERVER="tunnel.gardeno.global"' > /home/ubuntu/tunnel-server/.env
+echo -e 'TUNNEL_SERVER="tunnel.gardeno.global"\nTUNNEL_KEY="ENTER_YOUR_KEY_HERE"' > /home/ubuntu/tunnel-server/.env
 sudo service nginx restart && sudo service supervisor restart
 ```
