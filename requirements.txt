@@ -15,6 +15,7 @@ Naked==0.1.31
 pycparser==2.18
 python-dotenv==0.8.2
 PyYAML==3.13
+redis==2.10.6
 requests==2.19.1
 shellescape==3.4.1
 six==1.11.0

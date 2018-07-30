@@ -1,5 +1,7 @@
 # Setting up a tunnel server
 
+Install the tunnel server software:
+
 ```
 sudo apt-get update && sudo apt-get install -y binutils libproj-dev gdal-bin postgresql-client supervisor nginx vim python3-pip htop redis-server
 sudo pip3 install --upgrade pip
@@ -15,13 +17,10 @@ sudo chown www-data:www-data /var/log/tunnel.gardeno.global/
 sudo service nginx restart && sudo service supervisor restart
 ```
 
-# Notes
-
-Make sure to add `GatewayPorts yes` to `/etc/ssh/sshd_config`
-
-Setting up iptables rules:
+Append `/etc/ssh/sshd_config` with the following:
 
 ```
-sudo iptables -I OUTPUT -p tcp --dport 22 -m owner --uid-owner ubuntu -j ACCEPT
-sudo iptables -P INPUT DROP
+GatewayPorts no
+X11Forwarding no
+AllowTcpForwarding yes
 ```

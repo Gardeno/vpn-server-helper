@@ -39,8 +39,11 @@ def main():
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
         user_id = redis_client.incr(REDIS_KEY_USER_INCREMENT)
+        if int(user_id) > 60000:
+            return b"Number of users have been exceeded for this tunnel", 500
         redis_client.hset(REDIS_KEY_USERS_HASH, user_id, username)
         subprocess.call(["useradd", "-m", username])
+        subprocess.call(["usermod", "-s", "/sbin/nologin", username])
         subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(username)])
         key = rsa.generate_private_key(
             backend=crypto_default_backend(),
@@ -57,9 +60,9 @@ def main():
             crypto_serialization.PublicFormat.OpenSSH
         )
         authorized_keys_location = "/home/{}/.ssh/authorized_keys".format(username)
-        with open(authorized_keys_location, 'wb') as content_file:
+        with open(authorized_keys_location, 'w') as content_file:
             chmod(authorized_keys_location, 0o600)
-            content_file.write(public_key)
+            content_file.write('no-pty,permitopen="localhost:{}"\n{}'.format(user_id, public_key))
         subprocess.call(["chown", "{}:{}".format(username, username), "-R", "/home/{}/.ssh".format(username)])
         return jsonify({"user": {"id": user_id, "username": username}, "server": getenv('TUNNEL_SERVER'),
                         "keys": {"private": str(private_key, 'utf-8'), "public": str(public_key, 'utf-8')}})
