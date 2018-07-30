@@ -15,6 +15,12 @@ from pathlib import Path
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=str(env_path))
 
+REDIS_KEY_USER_INCREMENT = 'user-ids'
+REDIS_KEY_USERS_HASH = 'users'
+
+if not redis.get(REDIS_KEY_USER_INCREMENT):
+    redis.set(REDIS_KEY_USER_INCREMENT, '2000')
+
 
 def id_generator(size=20, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -32,8 +38,8 @@ def main():
     if request.method == 'POST':
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
-        user_id = redis_client.incr('user-id')
-        redis_client.hset('users', user_id, username)
+        user_id = redis_client.incr(REDIS_KEY_USER_INCREMENT)
+        redis_client.hset(REDIS_KEY_USERS_HASH, user_id, username)
         subprocess.call(["useradd", "-m", username])
         subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(username)])
         key = rsa.generate_private_key(
