@@ -18,16 +18,16 @@ load_dotenv(dotenv_path=str(env_path))
 REDIS_KEY_USER_INCREMENT = 'user-ids'
 REDIS_KEY_USERS_HASH = 'users'
 
-if not redis.get(REDIS_KEY_USER_INCREMENT):
-    redis.set(REDIS_KEY_USER_INCREMENT, '2000')
+app = Flask(__name__)
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 def id_generator(size=20, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-app = Flask(__name__)
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+if not redis.get(REDIS_KEY_USER_INCREMENT):
+    redis.set(REDIS_KEY_USER_INCREMENT, '2000')
 
 
 @app.route('/', methods=['POST', 'GET'])
