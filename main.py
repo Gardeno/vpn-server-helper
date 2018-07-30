@@ -26,8 +26,8 @@ def id_generator(size=20, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-if not redis.get(REDIS_KEY_USER_INCREMENT):
-    redis.set(REDIS_KEY_USER_INCREMENT, '2000')
+if not redis_client.get(REDIS_KEY_USER_INCREMENT):
+    redis_client.set(REDIS_KEY_USER_INCREMENT, '2000')
 
 
 @app.route('/', methods=['POST', 'GET'])
