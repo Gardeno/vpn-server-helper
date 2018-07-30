@@ -31,11 +31,11 @@ def main():
         return b"Invalid tunnel_key GET parameter", 401
     if request.method == 'POST':
         # TODO : Only allow port 80 access from VPC
-        user = id_generator()
+        username = id_generator()
         user_id = redis_client.incr('user-id')
-        redis_client.hset('user-ids', user_id, user)
-        subprocess.call(["useradd", "-m", user])
-        subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(user)])
+        redis_client.hset('users', user_id, username)
+        subprocess.call(["useradd", "-m", username])
+        subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(username)])
         key = rsa.generate_private_key(
             backend=crypto_default_backend(),
             public_exponent=65537,
@@ -50,11 +50,11 @@ def main():
             crypto_serialization.Encoding.OpenSSH,
             crypto_serialization.PublicFormat.OpenSSH
         )
-        authorized_keys_location = "/home/{}/.ssh/authorized_keys".format(user)
+        authorized_keys_location = "/home/{}/.ssh/authorized_keys".format(username)
         with open(authorized_keys_location, 'wb') as content_file:
             chmod(authorized_keys_location, 0o600)
             content_file.write(public_key)
-        subprocess.call(["chown", "{}:{}".format(user, user), "-R", "/home/{}/.ssh".format(user)])
-        return jsonify({"user": user, "server": getenv('TUNNEL_SERVER'),
+        subprocess.call(["chown", "{}:{}".format(username, username), "-R", "/home/{}/.ssh".format(username)])
+        return jsonify({"user": {"id": user_id, "username": username}, "server": getenv('TUNNEL_SERVER'),
                         "keys": {"private": str(private_key, 'utf-8'), "public": str(public_key, 'utf-8')}})
     return b"Only POSTing allowed", 405
