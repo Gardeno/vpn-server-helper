@@ -1,7 +1,7 @@
 # Setting up a tunnel server
 
 ```
-sudo apt-get update && sudo apt-get install -y binutils libproj-dev gdal-bin postgresql-client supervisor nginx vim python3-pip
+sudo apt-get update && sudo apt-get install -y binutils libproj-dev gdal-bin postgresql-client supervisor nginx vim python3-pip htop redis-server
 sudo pip3 install --upgrade pip
 sudo pip3 install uwsgi
 git clone https://github.com/Gardeno/tunnel-server.git

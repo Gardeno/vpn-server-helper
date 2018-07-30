@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import subprocess
 import string
 import random
+import redis
 from os import chmod, getenv
 from dotenv import load_dotenv
 
@@ -20,6 +21,7 @@ def id_generator(size=20, chars=string.ascii_uppercase + string.digits):
 
 
 app = Flask(__name__)
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -30,6 +32,8 @@ def main():
     if request.method == 'POST':
         # TODO : Only allow port 80 access from VPC
         user = id_generator()
+        user_id = redis_client.incr('user-id')
+        redis_client.hset('user-ids', user_id, user)
         subprocess.call(["useradd", "-m", user])
         subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(user)])
         key = rsa.generate_private_key(
