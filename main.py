@@ -36,6 +36,9 @@ def main():
     if secret_key != getenv("SECRET_KEY"):
         return b"Invalid secret_key GET parameter", 401
     if request.method == 'POST':
+        if not request.json:
+            return b"Must post JSON with content-type application/json", 400
+        '''
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
         user_id = redis_client.incr(REDIS_KEY_USER_INCREMENT)
@@ -66,4 +69,6 @@ def main():
         subprocess.call(["chown", "{}:{}".format(username, username), "-R", "/home/{}/.ssh".format(username)])
         return jsonify({"user": {"id": user_id, "username": username}, "server": getenv('TUNNEL_SERVER'),
                         "keys": {"private": str(private_key, 'utf-8'), "public": str(public_key, 'utf-8')}})
+        '''
+        return jsonify({"success": True})
     return b"Only POSTing allowed", 405
