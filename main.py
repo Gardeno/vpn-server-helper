@@ -101,7 +101,8 @@ def main():
             try:
                 make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, client_name)
                 print('Running: {}'.format(make_config_command))
-                subprocess.Popen(make_config_command, shell=True)
+                openvpn_config_process = subprocess.Popen(make_config_command, shell=True)
+                openvpn_config_process.wait()
             except Exception as exception:
                 print('Unable to generate final OpenVPN configuration: {}'.format(exception))
                 return b"Failed to generate configuration", 500
