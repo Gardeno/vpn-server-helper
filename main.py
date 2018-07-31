@@ -32,9 +32,9 @@ if not redis_client.get(REDIS_KEY_USER_INCREMENT):
 
 @app.route('/', methods=['POST', 'GET'])
 def main():
-    tunnel_key = request.args.get('tunnel_key')
-    if tunnel_key != getenv("SECRET_KEY"):
-        return b"Invalid tunnel_key GET parameter", 401
+    secret_key = request.args.get('secret_key')
+    if secret_key != getenv("SECRET_KEY"):
+        return b"Invalid secret_key GET parameter", 401
     if request.method == 'POST':
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
