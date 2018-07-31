@@ -88,52 +88,42 @@ def main():
         path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(client_name))
         # path_to_output_openvpn_config = path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))
         path_to_client_config = path.join(OPENVPN_CLIENT_CONFIG_DIRECTORY, client_name)
-        path_to_output_config = path.join(PATH_TO_OPENVPN_CONFIGS, '{}.ovpn'.format(client_name))
-        print('Writing config to: {}'.format(path_to_output_config))
-        if not path.exists(path_to_full_key):
-            try:
-                key_process = subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'],
-                                               cwd=PATH_TO_EASY_RSA)
-                key_process.wait()
-                chown(path_to_full_key, user=OWNED_BY_USER, group=OWNED_BY_USER)
-                # copy(path_to_full_key, FINISHED_KEY_LOCATION)
-            except Exception as exception:
-                print('Unable to generate key: {}'.format(exception))
-                return b"Failed to generate key", 500
-        if not path.exists(path_to_full_cert):
-            try:
-                sign_process = subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'],
-                                                cwd=PATH_TO_EASY_RSA)
-                sign_process.wait()
-                chown(path_to_full_cert, user=OWNED_BY_USER, group=OWNED_BY_USER)
-                # copy(path_to_full_cert, FINISHED_KEY_LOCATION)
-            except Exception as exception:
-                print('Unable to sign request: {}'.format(exception))
-                return b"Failed to sign request", 500
-        with open(PATH_TO_BASE_OPENVPN_CONFIG, 'r') as base_config, open(PATH_TO_OPENVPN_CA, 'r') as base_ca, open(
-                path_to_full_cert) as full_cert, open(path_to_full_key) as full_key, open(
-            PATH_TO_OPENVPN_TA_KEY, 'r') as base_ta, open(path_to_output_config, 'w') as output_config:
-            output_config.write(base_config.read())
-            output_config.write('<ca>')
-            output_config.write(base_ca.read())
-            output_config.write('</ca><cert>')
-            output_config.write(full_cert.read())
-            output_config.write('</cert><key>')
-            output_config.write(full_key.read())
-            output_config.write('</key><tls-auth>')
-            output_config.write(base_ta.read())
-            output_config.write('</tls-auth>')
-
-        '''
-        try:
-            make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, client_name)
-            print('Running: {}'.format(make_config_command))
-            openvpn_config_process = subprocess.Popen(make_config_command, shell=True)
-            openvpn_config_process.wait()
-        except Exception as exception:
-            print('Unable to generate final OpenVPN configuration: {}'.format(exception))
-            return b"Failed to generate configuration", 500
-        '''
+        path_to_output_openvpn_config = path.join(PATH_TO_OPENVPN_CONFIGS, '{}.ovpn'.format(client_name))
+        if not path.exists(path_to_output_openvpn_config):
+            print('Writing config to: {}'.format(path_to_output_openvpn_config))
+            if not path.exists(path_to_full_key):
+                try:
+                    key_process = subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'],
+                                                   cwd=PATH_TO_EASY_RSA)
+                    key_process.wait()
+                    chown(path_to_full_key, user=OWNED_BY_USER, group=OWNED_BY_USER)
+                    # copy(path_to_full_key, FINISHED_KEY_LOCATION)
+                except Exception as exception:
+                    print('Unable to generate key: {}'.format(exception))
+                    return b"Failed to generate key", 500
+            if not path.exists(path_to_full_cert):
+                try:
+                    sign_process = subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'],
+                                                    cwd=PATH_TO_EASY_RSA)
+                    sign_process.wait()
+                    chown(path_to_full_cert, user=OWNED_BY_USER, group=OWNED_BY_USER)
+                    # copy(path_to_full_cert, FINISHED_KEY_LOCATION)
+                except Exception as exception:
+                    print('Unable to sign request: {}'.format(exception))
+                    return b"Failed to sign request", 500
+            with open(PATH_TO_BASE_OPENVPN_CONFIG, 'r') as base_config, open(PATH_TO_OPENVPN_CA, 'r') as base_ca, open(
+                    path_to_full_cert) as full_cert, open(path_to_full_key) as full_key, open(
+                PATH_TO_OPENVPN_TA_KEY, 'r') as base_ta, open(path_to_output_openvpn_config, 'w') as output_config:
+                output_config.write(base_config.read())
+                output_config.write('<ca>')
+                output_config.write(base_ca.read())
+                output_config.write('</ca><cert>')
+                output_config.write(full_cert.read())
+                output_config.write('</cert><key>')
+                output_config.write(full_key.read())
+                output_config.write('</key><tls-auth>')
+                output_config.write(base_ta.read())
+                output_config.write('</tls-auth>')
         with open(path_to_client_config, 'w') as client_config:
             starting_ip_address = GROW_STARTING_NETWORK + grow_server_id * NUMBER_OF_SUBNETS
             # If the client_type is an administrator or core we always reserve the first two
@@ -149,9 +139,6 @@ def main():
             device_ip_address = str(starting_ip_address + ip_address_incrementor)
             client_config.write('ifconfig-push {} {}'.format(device_ip_address, GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
-        '''
-        with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))) as final_openvpn_config:
+        with open(path_to_output_openvpn_config) as final_openvpn_config:
             return jsonify({"device": {"ip_address": device_ip_address}, "config": final_openvpn_config.read()})
-        '''
-        return jsonify({"success": True})
     return b"Only POSTing allowed", 405
