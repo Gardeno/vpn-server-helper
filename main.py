@@ -130,7 +130,7 @@ def main():
             starting_ip_address = GROW_STARTING_NETWORK + (grow_server_id + 1) * NUMBER_OF_SUBNETS
             # We will likely cache the iptables result/creation process but for now it's here
             should_create_iptables_entry = True
-            rule_comment = 'grow-{}'.format(grow_identifier)
+            rule_comment = str('grow-{}'.format(grow_identifier))
             table = iptc.Table(iptc.Table.FILTER)
             chain = iptc.Chain(table, "FORWARD")
             for rule in chain.rules:
