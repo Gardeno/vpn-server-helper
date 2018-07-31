@@ -144,6 +144,9 @@ def main():
                     if match.name == 'comment' and str(match.comment) == str(rule_comment):
                         print('Match exists...')
                         should_create_iptables_entry = False
+                        break
+                if not should_create_iptables_entry:
+                    break
             if should_create_iptables_entry:
                 print('Creating iptables entry!')
                 '''

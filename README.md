@@ -62,6 +62,12 @@ sudo netfilter-persistent save # Persists the iptables to be restored upon the n
 sudo netfilter-persistent reload
 ```
 
+To list all existing `FORWARD` rules:
+
+```
+iptables -L FORWARD
+```
+
 Some sample rules to conditionally allow traffic between subnets:
 
 ```
