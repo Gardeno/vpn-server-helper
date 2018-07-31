@@ -71,9 +71,6 @@ def main():
         grow_identifier = request.json["grow_id"]
         client_type = request.json["client_type"]
         grow_server_id = redis_client.hget(REDIS_KEY_GROWS_BY_IDENTIFIER, grow_identifier)
-        print('Grow identifier: {}'.format(grow_identifier))
-        print('Grow server id: {}'.format(grow_server_id))
-        print('Client type: {}'.format(client_type))
         if not grow_server_id:
             grow_server_id = redis_client.incr(REDIS_KEY_GROW_ID_COUNTER)
             redis_client.hset(REDIS_KEY_GROWS_BY_IDENTIFIER, grow_identifier, grow_server_id)
@@ -84,14 +81,12 @@ def main():
         else:
             grow_server_id = int(grow_server_id)
         client_name = '{}-{}'.format(grow_identifier, client_type)
-        print('Client name: {}'.format(client_name))
         path_to_full_key = path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(client_name))
         path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(client_name))
         # path_to_output_openvpn_config = path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))
         path_to_client_config = path.join(OPENVPN_CLIENT_CONFIG_DIRECTORY, client_name)
         path_to_output_openvpn_config = path.join(PATH_TO_OPENVPN_CONFIGS, '{}.ovpn'.format(client_name))
         if not path.exists(path_to_output_openvpn_config):
-            print('Writing config to: {}'.format(path_to_output_openvpn_config))
             if not path.exists(path_to_full_key):
                 try:
                     key_process = subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'],
@@ -131,41 +126,16 @@ def main():
             # We will likely cache the iptables result/creation process but for now it's here
             should_create_iptables_entry = True
             rule_comment = "grow-{}".format(grow_identifier)
-            print('Rule comment: ')
-            print(rule_comment)
-            print('Rule comment type: {}'.format(type(rule_comment)))
             table = iptc.Table(iptc.Table.FILTER)
             chain = iptc.Chain(table, "FORWARD")
             for rule in chain.rules:
                 for match in rule.matches:
-                    print('---')
-                    print(str(match.comment))
-                    print(str(rule_comment))
                     if match.name == 'comment' and str(match.comment) == str(rule_comment):
-                        print('Match exists...')
                         should_create_iptables_entry = False
                         break
                 if not should_create_iptables_entry:
                     break
             if should_create_iptables_entry:
-                print('Creating iptables entry!')
-                '''
-                # Because of this issue uwsgi is bombing out: https://github.com/ldx/python-iptables/issues/231
-                # Dropping down into subprocess for now until the issue is resolved
-                print('Creating iptables entry!')
-                # Equivalent to the following comment
-                # iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
-                rule = iptc.Rule()
-                rule.src = "{}/{}".format(starting_ip_address, GROW_NETMASK)
-                print('Rule src: {}'.format(rule.src))
-                rule.dst = "{}/{}".format(starting_ip_address, GROW_NETMASK)
-                print('Rule dst: {}'.format(rule.dst))
-                rule.create_target('ACCEPT')
-                rule.protocol = 0  # all
-                match = rule.create_match("comment")
-                match.comment = "hardcoded_thing" # ""\"%s\"" % rule_comment
-                chain.insert_rule(rule)
-                '''
                 source_and_destination = "{}/{}".format(starting_ip_address, GROW_NETMASK)
                 subprocess.Popen(
                     'iptables -I FORWARD -s {} -d {} --jump ACCEPT --protocol all -m comment --comment "{}"'.format(
