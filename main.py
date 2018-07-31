@@ -76,6 +76,7 @@ def main():
         else:
             grow_server_id = int(grow_server_id)
         client_name = '{}-{}'.format(grow_identifier, client_type)
+        print('Client name: {}'.format(client_name))
         path_to_full_key = path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(client_name))
         path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(client_name))
         path_to_output_openvpn_config = path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))
