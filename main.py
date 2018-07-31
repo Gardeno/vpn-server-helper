@@ -68,7 +68,7 @@ def main():
         copy(path_to_full_key, FINISHED_KEY_LOCATION)
         copy(path_to_full_cert, FINISHED_KEY_LOCATION)
         try:
-            make_config_command = "{} {}".format(MAKE_CONFIG_EXECUTABLE, filename)
+            make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, filename)
             print('Running: {}'.format(make_config_command))
             subprocess.Popen(make_config_command, shell=True)
         except Exception as exception:
