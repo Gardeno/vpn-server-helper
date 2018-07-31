@@ -53,27 +53,29 @@ def main():
         filename = '{}-{}'.format(request.json["grow_id"], request.json["type"])
         path_to_full_key = path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(filename))
         path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(filename))
-        if not path.exists(path_to_full_key):
+        path_to_output_openvpn_config = path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(filename))
+        if not path.exists(path_to_output_openvpn_config):
+            if not path.exists(path_to_full_key):
+                try:
+                    subprocess.Popen(['./easyrsa', 'gen-req', filename, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+                except Exception as exception:
+                    print('Unable to generate key: {}'.format(exception))
+                    return b"Failed to generate key", 500
+            if not path.exists(path_to_full_cert):
+                try:
+                    subprocess.Popen(['./easyrsa', 'sign-req', 'client', filename, 'batch'], cwd=PATH_TO_EASY_RSA)
+                except Exception as exception:
+                    print('Unable to sign request: {}'.format(exception))
+                    return b"Failed to sign request", 500
+            copy(path_to_full_key, FINISHED_KEY_LOCATION)
+            copy(path_to_full_cert, FINISHED_KEY_LOCATION)
             try:
-                subprocess.Popen(['./easyrsa', 'gen-req', filename, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+                make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, filename)
+                print('Running: {}'.format(make_config_command))
+                subprocess.Popen(make_config_command, shell=True)
             except Exception as exception:
-                print('Unable to generate key: {}'.format(exception))
-                return b"Failed to generate key", 500
-        if not path.exists(path_to_full_cert):
-            try:
-                subprocess.Popen(['./easyrsa', 'sign-req', 'client', filename, 'batch'], cwd=PATH_TO_EASY_RSA)
-            except Exception as exception:
-                print('Unable to sign request: {}'.format(exception))
-                return b"Failed to sign request", 500
-        copy(path_to_full_key, FINISHED_KEY_LOCATION)
-        copy(path_to_full_cert, FINISHED_KEY_LOCATION)
-        try:
-            make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, filename)
-            print('Running: {}'.format(make_config_command))
-            subprocess.Popen(make_config_command, shell=True)
-        except Exception as exception:
-                print('Unable to generate final OpenVPN configuration: {}'.format(exception))
-                return b"Failed to generate configuration", 500
+                    print('Unable to generate final OpenVPN configuration: {}'.format(exception))
+                    return b"Failed to generate configuration", 500
         with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(filename))) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read()})
     return b"Only POSTing allowed", 405
