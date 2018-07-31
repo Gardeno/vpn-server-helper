@@ -138,10 +138,14 @@ def main():
             chain = iptc.Chain(table, "FORWARD")
             for rule in chain.rules:
                 for match in rule.matches:
+                    print('---')
+                    print(str(match.comment))
+                    print(str(rule_comment))
                     if match.name == 'comment' and str(match.comment) == str(rule_comment):
                         print('Match exists...')
                         should_create_iptables_entry = False
             if should_create_iptables_entry:
+                print('Creating iptables entry!')
                 '''
                 # Because of this issue uwsgi is bombing out: https://github.com/ldx/python-iptables/issues/231
                 # Dropping down into subprocess for now until the issue is resolved
