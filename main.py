@@ -112,9 +112,9 @@ def main():
                 ip_address_incrementor = redis_client.incr(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id))
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
                     return b"Exceeded the number of clients for this server", 429
-            client_config.write(
-                'ifconfig-push {} {}'.format(str(starting_ip_address + ip_address_incrementor), GROW_NETMASK))
+            device_ip_address = str(starting_ip_address + ip_address_incrementor)
+            client_config.write('ifconfig-push {} {}'.format(device_ip_address, GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))) as final_openvpn_config:
-            return jsonify({"config": final_openvpn_config.read()})
+            return jsonify({"device": {"ip_address": device_ip_address}, "config": final_openvpn_config.read()})
     return b"Only POSTing allowed", 405
