@@ -71,6 +71,8 @@ def main():
             # respectively. From there we will increment up to NUMBER_OF_HOSTS before disabling
             # new clients to be added to this VPN server.
             redis_client.set(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id), '2')
+        else:
+            grow_server_id = int(grow_server_id)
         client_name = '{}-{}'.format(grow_identifier, client_type)
         path_to_full_key = path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(client_name))
         path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(client_name))
