@@ -145,7 +145,7 @@ def main():
                 rule.src = "{}/{}".format(starting_ip_address, GROW_NETMASK)
                 rule.dst = "{}/{}".format(starting_ip_address, GROW_NETMASK)
                 rule.create_target('ACCEPT')
-                rule.protocol = 'all'
+                rule.protocol = 0 # all
                 match = rule.create_match("comment")
                 match.comment = rule_comment
                 chain.insert_rule(rule)
