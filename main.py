@@ -5,6 +5,7 @@ import random
 import redis
 from os import chmod, getenv, path
 from dotenv import load_dotenv
+from shutil import copyfile
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -21,6 +22,7 @@ REDIS_KEY_USERS_HASH = 'users'
 ALLOWED_TYPES = ["administrator", "core", "sensor"]
 
 PATH_TO_EASY_RSA = "/home/ubuntu/EasyRSA-3.0.4/"
+FINISHED_KEY_LOCATION = '/home/ubuntu/client-configs/keys/'
 
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -47,14 +49,22 @@ def main():
         if "type" not in request.json or request.json["type"] not in ALLOWED_TYPES:
             return "Missing `type` in POSTed JSON (must be one of {})".format(", ".join(ALLOWED_TYPES)), 400
         filename = '{}-{}'.format(request.json["grow_id"], request.json["type"])
-        if not path.exists(path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(filename))):
+        path_to_full_key = path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(filename))
+        path_to_full_cert = path.join(PATH_TO_EASY_RSA, 'pki/issued', '{}.crt'.format(filename))
+        if not path.exists(path_to_full_key):
             try:
                 subprocess.Popen(['./easyrsa', 'gen-req', filename, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
             except Exception as exception:
                 print('Unable to generate key: {}'.format(exception))
                 return b"Failed to generate key", 500
-        else:
-            print('Private key has been generated already!')
+        if not path.exists(path_to_full_cert):
+            try:
+                subprocess.Popen(['./easyrsa', 'sign-req', 'client', filename, 'batch'], cwd=PATH_TO_EASY_RSA)
+            except Exception as exception:
+                print('Unable to sign request: {}'.format(exception))
+                return b"Failed to sign request", 500
+        copyfile(path_to_full_key, FINISHED_KEY_LOCATION)
+        copyfile(path_to_full_cert, FINISHED_KEY_LOCATION)
 
         '''
         # TODO : Only allow port 80 access from VPC
