@@ -29,6 +29,13 @@ sudo service nginx restart && sudo service supervisor restart
 Doesn't quite work:
 
 ```
-sudo iptables -A FORWARD -s 13.0.16.0/20 -d 13.0.0.0/16 -j DROP
-sudo iptables -A FORWARD -s 13.0.32.0/20 -d 13.0.0.0/16 -j DROP
+# Forward established traffic so that (in the above case) VPN1 doesn't
+# drop responses from the client, A.K.A. "the magic"
+iptables -t filter -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+iptables -t filter -A FORWARD     -s 13.0.16.0/20 -d 13.0.16.0/20  -j ACCEPT
+iptables -t nat    -A POSTROUTING -s 13.0.16.0/20 -d 13.0.16.0/20  -j MASQUERADE
+
+# Drop everything else that wants to be forwarded
+iptables -P FORWARD DROP
 ```
