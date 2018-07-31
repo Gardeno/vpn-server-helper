@@ -1,4 +1,4 @@
-# Setting up a tunnel server
+# Setting up the VPN
 
 - Install OpenVPN and OpenVPN CA according to the following guide: 
 
