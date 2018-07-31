@@ -70,7 +70,7 @@ def main():
             # We set the default client counter to 2 to reserve the administrator IP address and core IP addresses,
             # respectively. From there we will increment up to NUMBER_OF_HOSTS before disabling
             # new clients to be added to this VPN server.
-            redis_client.set(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id), '2')
+            redis_client.set(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id), '3')
         else:
             grow_server_id = int(grow_server_id)
         client_name = '{}-{}'.format(grow_identifier, client_type)
@@ -105,9 +105,9 @@ def main():
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
             if client_type == ALLOWED_CLIENT_TYPES[0]:
-                ip_address_incrementor = 1
-            elif client_type == ALLOWED_CLIENT_TYPES[1]:
                 ip_address_incrementor = 2
+            elif client_type == ALLOWED_CLIENT_TYPES[1]:
+                ip_address_incrementor = 3
             else:
                 ip_address_incrementor = redis_client.incr(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id))
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
