@@ -13,6 +13,7 @@ MarkupSafe==1.0
 Naked==0.1.31
 pycparser==2.18
 python-dotenv==0.8.2
+python-iptables==0.13.0
 PyYAML==3.13
 redis==2.10.6
 requests==2.19.1
