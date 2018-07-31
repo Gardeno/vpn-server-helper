@@ -131,6 +131,8 @@ def main():
             # We will likely cache the iptables result/creation process but for now it's here
             should_create_iptables_entry = True
             rule_comment = str('grow-{}'.format(grow_identifier))
+            print('Rule comment: ')
+            print(rule_comment)
             table = iptc.Table(iptc.Table.FILTER)
             chain = iptc.Chain(table, "FORWARD")
             for rule in chain.rules:
@@ -145,9 +147,10 @@ def main():
                 rule.src = "{}/{}".format(starting_ip_address, GROW_NETMASK)
                 rule.dst = "{}/{}".format(starting_ip_address, GROW_NETMASK)
                 rule.create_target('ACCEPT')
-                rule.protocol = 0 # all
+                rule.protocol = 0  # all
                 match = rule.create_match("comment")
-                match.comment = rule_comment
+                # match.comment = rule_comment.encode('utf-8')
+                match.comment = "rule-here"
                 chain.insert_rule(rule)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
