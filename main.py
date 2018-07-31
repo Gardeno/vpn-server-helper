@@ -33,6 +33,8 @@ GROW_NETMASK = '255.255.240.0'  # Netmask of /20, aka 4096 subnets and 4094 host
 NUMBER_OF_SUBNETS = 4096
 NUMBER_OF_HOSTS = 4094
 
+OWNED_BY_USER = 'ubuntu'
+
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
@@ -82,6 +84,7 @@ def main():
             if not path.exists(path_to_full_key):
                 try:
                     subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+                    chown(path_to_client_config, user=OWNED_BY_USER, group=OWNED_BY_USER)
                     copy(path_to_full_key, FINISHED_KEY_LOCATION)
                 except Exception as exception:
                     print('Unable to generate key: {}'.format(exception))
@@ -89,6 +92,7 @@ def main():
             if not path.exists(path_to_full_cert):
                 try:
                     subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'], cwd=PATH_TO_EASY_RSA)
+                    chown(path_to_client_config, user=OWNED_BY_USER, group=OWNED_BY_USER)
                     copy(path_to_full_cert, FINISHED_KEY_LOCATION)
                 except Exception as exception:
                     print('Unable to sign request: {}'.format(exception))
