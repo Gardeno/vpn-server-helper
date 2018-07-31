@@ -23,6 +23,8 @@ ALLOWED_TYPES = ["administrator", "core", "sensor"]
 
 PATH_TO_EASY_RSA = "/home/ubuntu/EasyRSA-3.0.4/"
 FINISHED_KEY_LOCATION = '/home/ubuntu/client-configs/keys/'
+MAKE_CONFIG_EXECUTABLE = '/home/ubuntu/client-configs/make_config.sh'
+FINAL_OPENVPN_CONFIG_DIRECTORY = '/home/ubuntu/client-configs/files/'
 
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -65,38 +67,7 @@ def main():
                 return b"Failed to sign request", 500
         copy(path_to_full_key, FINISHED_KEY_LOCATION)
         copy(path_to_full_cert, FINISHED_KEY_LOCATION)
-
-        '''
-        # TODO : Only allow port 80 access from VPC
-        username = id_generator()
-        user_id = redis_client.incr(REDIS_KEY_USER_INCREMENT)
-        if int(user_id) > 60000:
-            return b"Number of users have been exceeded for this tunnel", 500
-        redis_client.hset(REDIS_KEY_USERS_HASH, user_id, username)
-        subprocess.call(["useradd", "-m", username])
-        subprocess.call(["usermod", "-s", "/bin/false", username])
-        subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(username)])
-        key = rsa.generate_private_key(
-            backend=crypto_default_backend(),
-            public_exponent=65537,
-            key_size=2048
-        )
-        private_key = key.private_bytes(
-            crypto_serialization.Encoding.PEM,
-            crypto_serialization.PrivateFormat.TraditionalOpenSSL,
-            crypto_serialization.NoEncryption()
-        )
-        public_key = key.public_key().public_bytes(
-            crypto_serialization.Encoding.OpenSSH,
-            crypto_serialization.PublicFormat.OpenSSH
-        )
-        authorized_keys_location = "/home/{}/.ssh/authorized_keys".format(username)
-        with open(authorized_keys_location, 'w') as content_file:
-            chmod(authorized_keys_location, 0o600)
-            content_file.write('no-pty,permitopen="localhost:{}"\n{}'.format(user_id, public_key))
-        subprocess.call(["chown", "{}:{}".format(username, username), "-R", "/home/{}/.ssh".format(username)])
-        return jsonify({"user": {"id": user_id, "username": username}, "server": getenv('TUNNEL_SERVER'),
-                        "keys": {"private": str(private_key, 'utf-8'), "public": str(public_key, 'utf-8')}})
-        '''
-        return jsonify({"success": True})
+        subprocess.Popen([MAKE_CONFIG_EXECUTABLE, filename])
+        with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(filename))) as final_openvpn_config:
+            return jsonify({"config": final_openvpn_config.read()})
     return b"Only POSTing allowed", 405
