@@ -113,7 +113,7 @@ def main():
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
                     return b"Exceeded the number of clients for this server", 429
             client_config.write(
-                'ifconfig-push {} {}'.format(str(starting_ip_address + ip_address_incrementor), starting_ip_address))
+                'ifconfig-push {} {}'.format(str(starting_ip_address + ip_address_incrementor), GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read()})
