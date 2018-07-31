@@ -26,15 +26,16 @@ sudo service nginx restart && sudo service supervisor restart
 
 # IP Tables
 
+Backup / restore to avoid reboot:
+
 ```
-# Block all OpenVPN network traffic
-sudo iptables -I FORWARD -s 13.0.0.0/16 -d 13.0.0.0/16 -j DROP
-# Following doesn't work yet:
-#sudo iptables -I FORWARD -s 13.0.16.0/20 -d 13.0.0.1 -j DROP
-#sudo iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.0.1 -j DROP
-#sudo iptables -I FORWARD -s 13.0.16.1 -d 13.0.0.1 -j DROP
-#sudo iptables -I FORWARD -s 13.0.32.1 -d 13.0.0.1 -j DROP
-# Open up subnet to self
-sudo iptables -I FORWARD -s 13.0.16.0/20 -d 13.0.16.0/20 -j ACCEPT
-sudo iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 -j ACCEPT
+iptables-save > /opt/iptables.backup
+iptables-restore < /opt/iptables.backup
+```
+
+```
+iptables -I FORWARD -s 13.0.0.0/16 --jump REJECT --protocol all
+# Allow clients to access their own subnet
+iptables -I FORWARD -s 13.0.16.0/20 -d 13.0.16.0/20 --jump ACCEPT --protocol all
+iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all
 ```
