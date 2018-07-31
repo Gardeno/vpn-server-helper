@@ -153,7 +153,7 @@ def main():
                 rule.create_target('ACCEPT')
                 rule.protocol = 0  # all
                 match = rule.create_match("comment")
-                match.comment = "\"%s\"" % rule_comment
+                match.comment = "hardcoded_thing" # ""\"%s\"" % rule_comment
                 chain.insert_rule(rule)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
