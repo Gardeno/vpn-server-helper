@@ -3,7 +3,7 @@ import subprocess
 import string
 import random
 import redis
-from os import chmod, getenv
+from os import chmod, getenv, path
 from dotenv import load_dotenv
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -17,6 +17,10 @@ load_dotenv(dotenv_path=str(env_path))
 
 REDIS_KEY_USER_INCREMENT = 'user-ids'
 REDIS_KEY_USERS_HASH = 'users'
+
+ALLOWED_TYPES = ["administrator", "core", "sensor"]
+
+PATH_TO_EASY_RSA = "/home/ubuntu/EasyRSA-3.0.4/"
 
 app = Flask(__name__)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -37,7 +41,21 @@ def main():
         return b"Invalid secret_key GET parameter", 401
     if request.method == 'POST':
         if not request.json:
-            return b"Must post JSON with content-type application/json", 400
+            return b"Must post JSON with Content-Type application/json", 400
+        if "grow_id" not in request.json:
+            return b"Missing `grow_id` in POSTed JSON", 400
+        if "type" not in request.json or request.json["type"] not in ALLOWED_TYPES:
+            return "Missing `type` in POSTed JSON (must be one of {})".format(", ".join(ALLOWED_TYPES)), 400
+        filename = '{}-{}'.format(request.json["grow_id"], request.json["type"])
+        if not path.exists(path.join(PATH_TO_EASY_RSA, 'pki/private', '{}.key'.format(filename))):
+            try:
+                subprocess.Popen(['./easyrsa', 'gen-req', filename, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+            except Exception as exception:
+                print('Unable to generate key: {}'.format(exception))
+                return b"Failed to generate key", 500
+        else:
+            print('Private key has been generated already!')
+
         '''
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
