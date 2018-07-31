@@ -43,7 +43,7 @@ def main():
             return b"Number of users have been exceeded for this tunnel", 500
         redis_client.hset(REDIS_KEY_USERS_HASH, user_id, username)
         subprocess.call(["useradd", "-m", username])
-        subprocess.call(["usermod", "-s", "/sbin/nologin", username])
+        subprocess.call(["usermod", "-s", "/bin/false", username])
         subprocess.call(["mkdir", "-p", "/home/{}/.ssh".format(username)])
         key = rsa.generate_private_key(
             backend=crypto_default_backend(),

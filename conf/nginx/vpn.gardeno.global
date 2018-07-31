@@ -1,0 +1,13 @@
+upstream wsgicluster {
+	server unix:///tmp/vpn.gardeno.sock;
+}
+server {
+	listen 80;
+        server_name vpn.gardeno.global;
+        error_log /var/log/vpn.gardeno.global/nginx_error.log;
+        access_log /var/log/vpn.gardeno.global/nginx_access.log;
+        location / {
+                include uwsgi_params;
+                uwsgi_pass wsgicluster;
+        }
+}
