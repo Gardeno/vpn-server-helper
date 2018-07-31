@@ -81,22 +81,20 @@ def main():
         path_to_output_openvpn_config = path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))
         path_to_client_config = path.join(OPENVPN_CLIENT_CONFIG_DIRECTORY, client_name)
         if not path.exists(path_to_output_openvpn_config):
-            if not path.exists(path_to_full_key):
-                try:
-                    subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
-                    chown(path_to_client_config, user=OWNED_BY_USER, group=OWNED_BY_USER)
-                    copy(path_to_full_key, FINISHED_KEY_LOCATION)
-                except Exception as exception:
-                    print('Unable to generate key: {}'.format(exception))
-                    return b"Failed to generate key", 500
-            if not path.exists(path_to_full_cert):
-                try:
-                    subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'], cwd=PATH_TO_EASY_RSA)
-                    chown(path_to_client_config, user=OWNED_BY_USER, group=OWNED_BY_USER)
-                    copy(path_to_full_cert, FINISHED_KEY_LOCATION)
-                except Exception as exception:
-                    print('Unable to sign request: {}'.format(exception))
-                    return b"Failed to sign request", 500
+            try:
+                subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+                chown(path_to_full_key, user=OWNED_BY_USER, group=OWNED_BY_USER)
+                copy(path_to_full_key, FINISHED_KEY_LOCATION)
+            except Exception as exception:
+                print('Unable to generate key: {}'.format(exception))
+                return b"Failed to generate key", 500
+            try:
+                subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'], cwd=PATH_TO_EASY_RSA)
+                chown(path_to_full_cert, user=OWNED_BY_USER, group=OWNED_BY_USER)
+                copy(path_to_full_cert, FINISHED_KEY_LOCATION)
+            except Exception as exception:
+                print('Unable to sign request: {}'.format(exception))
+                return b"Failed to sign request", 500
             try:
                 make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, client_name)
                 print('Running: {}'.format(make_config_command))
