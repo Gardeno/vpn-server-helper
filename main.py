@@ -110,9 +110,9 @@ def main():
             except Exception as exception:
                 print('Unable to sign request: {}'.format(exception))
                 return b"Failed to sign request", 500
-        with open(PATH_TO_BASE_OPENVPN_CONFIG, 'rb') as base_config, open(PATH_TO_OPENVPN_CA, 'rb') as base_ca, open(
+        with open(PATH_TO_BASE_OPENVPN_CONFIG, 'r') as base_config, open(PATH_TO_OPENVPN_CA, 'r') as base_ca, open(
                 path_to_full_cert) as full_cert, open(path_to_full_key) as full_key, open(
-            PATH_TO_OPENVPN_TA_KEY, 'rb') as base_ta, open(path_to_output_config, 'w') as output_config:
+            PATH_TO_OPENVPN_TA_KEY, 'r') as base_ta, open(path_to_output_config, 'w') as output_config:
             output_config.write(base_config.read())
             output_config.write('<ca>')
             output_config.write(base_ca.read())
