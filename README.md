@@ -23,3 +23,12 @@ sudo mkdir /var/log/vpn.gardeno.global
 sudo chown www-data:www-data /var/log/vpn.gardeno.global/
 sudo service nginx restart && sudo service supervisor restart
 ```
+
+# IP Tables
+
+Doesn't quite work:
+
+```
+sudo iptables -A FORWARD -s 13.0.16.0/20 -d 13.0.0.0/16 -j DROP
+sudo iptables -A FORWARD -s 13.0.32.0/20 -d 13.0.0.0/16 -j DROP
+```
