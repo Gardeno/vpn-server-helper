@@ -36,6 +36,9 @@ iptables -t filter -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -t filter -A FORWARD     -s 13.0.16.0/20 -d 13.0.16.0/20  -j ACCEPT
 iptables -t nat    -A POSTROUTING -s 13.0.16.0/20 -d 13.0.16.0/20  -j MASQUERADE
 
+iptables -t filter -A FORWARD     -s 13.0.32.0/20 -d 13.0.32.0/20  -j ACCEPT
+iptables -t nat    -A POSTROUTING -s 13.0.32.0/20 -d 13.0.32.0/20  -j MASQUERADE
+
 # Drop everything else that wants to be forwarded
 iptables -P FORWARD DROP
 ```
