@@ -4,6 +4,9 @@
 
 https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-18-04
 
+Use the `conf/openvpn/server.conf` file to extend that tutorial. Create a directory at `/home/ubuntu/clients/{config,setup}`
+instead of using `~/client-configs`. For now, CA and server are together in the current dev environment
+
 - Install the VPN HTTP Server
 
 ```
