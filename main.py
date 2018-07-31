@@ -82,7 +82,7 @@ def main():
                 return b"Failed to generate configuration", 500
         if not path.exists(path_to_client_config):
             with open(path_to_client_config, 'w') as client_config:
-                client_config.write('ifconfig-push 10.1.32.10 10.1.32.1')
+                client_config.write('ifconfig-push 10.1.32.20 10.1.32.1')
             chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(client_name))) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read()})
