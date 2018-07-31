@@ -140,5 +140,6 @@ def main():
             client_config.write('ifconfig-push {} {}'.format(device_ip_address, GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path_to_output_openvpn_config) as final_openvpn_config:
-            return jsonify({"device": {"ip_address": device_ip_address}, "config": final_openvpn_config.read()})
+            return jsonify({"config": final_openvpn_config.read(),
+                            "device": {"ip_address": device_ip_address, "name": client_name}})
     return b"Only POSTing allowed", 405
