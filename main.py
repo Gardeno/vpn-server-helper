@@ -28,7 +28,7 @@ OPENVPN_CLIENT_CONFIG_DIRECTORY = '/etc/openvpn/ccd/'
 OPENVPN_USER = 'nobody'
 OPENVPN_GROUP = 'nogroup'
 
-GROW_STARTING_NETWORK = ipaddress.ip_address('10.9.0.0')
+GROW_STARTING_NETWORK = ipaddress.ip_address('13.0.0.0')
 GROW_NETMASK = '255.255.240.0'  # Netmask of /20, aka 4096 subnets and 4094 hosts per subnet
 NUMBER_OF_SUBNETS = 4096
 NUMBER_OF_HOSTS = 4094
@@ -70,7 +70,7 @@ def main():
             # We set the default client counter to 2 to reserve the administrator IP address and core IP addresses,
             # respectively. From there we will increment up to NUMBER_OF_HOSTS before disabling
             # new clients to be added to this VPN server.
-            redis_client.set(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id), '3')
+            redis_client.set(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id), '2')
         else:
             grow_server_id = int(grow_server_id)
         client_name = '{}-{}'.format(grow_identifier, client_type)
@@ -101,13 +101,13 @@ def main():
                 print('Unable to generate final OpenVPN configuration: {}'.format(exception))
                 return b"Failed to generate configuration", 500
         with open(path_to_client_config, 'w') as client_config:
-            starting_ip_address = GROW_STARTING_NETWORK + (grow_server_id - 1) * NUMBER_OF_SUBNETS
+            starting_ip_address = GROW_STARTING_NETWORK + grow_server_id * NUMBER_OF_SUBNETS
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
             if client_type == ALLOWED_CLIENT_TYPES[0]:
-                ip_address_incrementor = 2
+                ip_address_incrementor = 1
             elif client_type == ALLOWED_CLIENT_TYPES[1]:
-                ip_address_incrementor = 3
+                ip_address_incrementor = 2
             else:
                 ip_address_incrementor = redis_client.incr(REDIS_KEY_GROW_CLIENT_COUNTER.format(grow_server_id))
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
