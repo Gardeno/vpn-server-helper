@@ -5,7 +5,7 @@ import random
 import redis
 from os import chmod, getenv, path
 from dotenv import load_dotenv
-from shutil import copyfile
+from shutil import copy
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -63,8 +63,15 @@ def main():
             except Exception as exception:
                 print('Unable to sign request: {}'.format(exception))
                 return b"Failed to sign request", 500
-        copyfile(path_to_full_key, FINISHED_KEY_LOCATION)
-        copyfile(path_to_full_cert, FINISHED_KEY_LOCATION)
+        copy(path_to_full_key, FINISHED_KEY_LOCATION)
+        copy(path_to_full_cert, FINISHED_KEY_LOCATION)
+
+            '''
+       81  cp /home/ubuntu/EasyRSA-3.0.4/pki/private/grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core.key ~/client-configs/keys/
+       82  ./easyrsa sign-req client grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-administrator batch
+       83  ./easyrsa sign-req client grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core batch
+       84  cp /home/ubuntu/EasyRSA-3.0.4/pki/issued/grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core.crt ~/client-configs/keys/
+       '''
 
         '''
         # TODO : Only allow port 80 access from VPC
