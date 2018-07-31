@@ -82,17 +82,17 @@ def main():
             if not path.exists(path_to_full_key):
                 try:
                     subprocess.Popen(['./easyrsa', 'gen-req', client_name, 'nopass', 'batch'], cwd=PATH_TO_EASY_RSA)
+                    copy(path_to_full_key, FINISHED_KEY_LOCATION)
                 except Exception as exception:
                     print('Unable to generate key: {}'.format(exception))
                     return b"Failed to generate key", 500
             if not path.exists(path_to_full_cert):
                 try:
                     subprocess.Popen(['./easyrsa', 'sign-req', 'client', client_name, 'batch'], cwd=PATH_TO_EASY_RSA)
+                    copy(path_to_full_cert, FINISHED_KEY_LOCATION)
                 except Exception as exception:
                     print('Unable to sign request: {}'.format(exception))
                     return b"Failed to sign request", 500
-            copy(path_to_full_key, FINISHED_KEY_LOCATION)
-            copy(path_to_full_cert, FINISHED_KEY_LOCATION)
             try:
                 make_config_command = "sudo {} {}".format(MAKE_CONFIG_EXECUTABLE, client_name)
                 print('Running: {}'.format(make_config_command))
