@@ -28,7 +28,7 @@ OPENVPN_CLIENT_CONFIG_DIRECTORY = '/etc/openvpn/ccd/'
 OPENVPN_USER = 'nobody'
 OPENVPN_GROUP = 'nogroup'
 
-GROW_STARTING_NETWORK = ipaddress.ip_address('10.0.0.0')
+GROW_STARTING_NETWORK = ipaddress.ip_address('10.9.0.0')
 GROW_NETMASK = '255.255.240.0'  # Netmask of /20, aka 4096 subnets and 4094 hosts per subnet
 NUMBER_OF_SUBNETS = 4096
 NUMBER_OF_HOSTS = 4094
