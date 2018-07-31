@@ -130,7 +130,7 @@ def main():
             starting_ip_address = GROW_STARTING_NETWORK + (grow_server_id + 1) * NUMBER_OF_SUBNETS
             # We will likely cache the iptables result/creation process but for now it's here
             should_create_iptables_entry = True
-            rule_comment = b"grow-{}".format(grow_identifier)
+            rule_comment = "grow-{}".format(grow_identifier)
             print('Rule comment: ')
             print(rule_comment)
             print('Rule comment type: {}'.format(type(rule_comment)))
@@ -153,7 +153,7 @@ def main():
                 rule.create_target('ACCEPT')
                 rule.protocol = 0  # all
                 match = rule.create_match("comment")
-                match.comment = rule_comment.decode()
+                match.comment = "\"%s\"" % rule_comment
                 chain.insert_rule(rule)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
