@@ -145,7 +145,9 @@ def main():
                 # iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
                 rule = iptc.Rule()
                 rule.src = "{}/{}".format(starting_ip_address, GROW_NETMASK)
+                print('Rule src: {}'.format(rule.src))
                 rule.dst = "{}/{}".format(starting_ip_address, GROW_NETMASK)
+                print('Rule dst: {}'.format(rule.dst))
                 rule.create_target('ACCEPT')
                 rule.protocol = 0  # all
                 # match = rule.create_match("comment")
