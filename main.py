@@ -142,6 +142,9 @@ def main():
                         print('Match exists...')
                         should_create_iptables_entry = False
             if should_create_iptables_entry:
+                '''
+                # Because of this issue uwsgi is bombing out: https://github.com/ldx/python-iptables/issues/231
+                # Dropping down into subprocess for now until the issue is resolved
                 print('Creating iptables entry!')
                 # Equivalent to the following comment
                 # iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
@@ -155,6 +158,11 @@ def main():
                 match = rule.create_match("comment")
                 match.comment = "hardcoded_thing" # ""\"%s\"" % rule_comment
                 chain.insert_rule(rule)
+                '''
+                source_and_destination = "{}/{}".format(starting_ip_address, GROW_NETMASK)
+                subprocess.Popen(
+                    'iptables -I FORWARD -s {} -d {} --jump ACCEPT --protocol all -m comment --comment "{}"'.format(
+                        source_and_destination, source_and_destination, rule_comment), shell=True)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
             if client_type == ALLOWED_CLIENT_TYPES[0]:
