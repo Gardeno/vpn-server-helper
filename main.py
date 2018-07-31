@@ -66,13 +66,6 @@ def main():
         copy(path_to_full_key, FINISHED_KEY_LOCATION)
         copy(path_to_full_cert, FINISHED_KEY_LOCATION)
 
-            '''
-       81  cp /home/ubuntu/EasyRSA-3.0.4/pki/private/grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core.key ~/client-configs/keys/
-       82  ./easyrsa sign-req client grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-administrator batch
-       83  ./easyrsa sign-req client grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core batch
-       84  cp /home/ubuntu/EasyRSA-3.0.4/pki/issued/grow-c08f0232-a9b9-4869-970f-fbb98cd2572d-core.crt ~/client-configs/keys/
-       '''
-
         '''
         # TODO : Only allow port 80 access from VPC
         username = id_generator()
