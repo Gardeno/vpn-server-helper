@@ -67,7 +67,13 @@ def main():
                 return b"Failed to sign request", 500
         copy(path_to_full_key, FINISHED_KEY_LOCATION)
         copy(path_to_full_cert, FINISHED_KEY_LOCATION)
-        subprocess.Popen([MAKE_CONFIG_EXECUTABLE, filename])
+        try:
+            make_config_command = "{} {}".format(MAKE_CONFIG_EXECUTABLE, filename)
+            print('Running: {}'.format(make_config_command))
+            subprocess.Popen(make_config_command, shell=True)
+        except Exception as exception:
+                print('Unable to generate final OpenVPN configuration: {}'.format(exception))
+                return b"Failed to generate configuration", 500
         with open(path.join(FINAL_OPENVPN_CONFIG_DIRECTORY, '{}.ovpn'.format(filename))) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read()})
     return b"Only POSTing allowed", 405
