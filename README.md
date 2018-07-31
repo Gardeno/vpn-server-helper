@@ -24,18 +24,49 @@ sudo chown www-data:www-data /var/log/vpn.gardeno.global/
 sudo service nginx restart && sudo service supervisor restart
 ```
 
+# Client-side routing troubleshooting
+
+To view the routing table:
+
+```
+netstat -nr
+```
+
+To flush the routing table, run the following a few times and reconnect to the internet:
+
+```
+sudo route -n flush
+```
+
 # IP Tables
 
-Backup / restore to avoid reboot:
+Enabling commenting:
+
+```
+modprobe ipt_comment
+modprobe xt_comment
+```
+
+Backup / restore from system defaults:
 
 ```
 iptables-save > /opt/iptables.backup
 iptables-restore < /opt/iptables.backup
 ```
 
+Using `iptables-persistent`:
+
+```
+sudo apt-get install iptables-persistent
+sudo netfilter-persistent save # Persists the iptables to be restored upon the next reboot
+sudo netfilter-persistent reload
+```
+
+Some sample rules to conditionally allow traffic between subnets:
+
 ```
 iptables -I FORWARD -s 13.0.0.0/16 --jump REJECT --protocol all
 # Allow clients to access their own subnet
-iptables -I FORWARD -s 13.0.16.0/20 -d 13.0.16.0/20 --jump ACCEPT --protocol all
-iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all
+iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.16.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-bc38b729-987e-4698-8251-ec056449cfb4"
+iptables -I FORWARD -s 13.0.48.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
 ```

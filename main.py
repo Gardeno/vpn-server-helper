@@ -125,7 +125,8 @@ def main():
                 output_config.write(base_ta.read())
                 output_config.write('</tls-auth>\n\n')
         with open(path_to_client_config, 'w') as client_config:
-            starting_ip_address = GROW_STARTING_NETWORK + grow_server_id * NUMBER_OF_SUBNETS
+            # We add 1 because for some unknown reason adding 13.0.16.0/20 to iptables auto-resolves the DNS
+            starting_ip_address = GROW_STARTING_NETWORK + (grow_server_id + 1) * NUMBER_OF_SUBNETS
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
             if client_type == ALLOWED_CLIENT_TYPES[0]:
@@ -137,7 +138,7 @@ def main():
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
                     return b"Exceeded the number of clients for this server", 429
             device_ip_address = str(starting_ip_address + ip_address_incrementor)
-            client_config.write('ifconfig-push {} {}'.format(device_ip_address, GROW_NETMASK))
+            client_config.write('ifconfig-push {} {}\npush "route {} {}"\n'.format(device_ip_address, GROW_NETMASK, starting_ip_address, GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path_to_output_openvpn_config) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read(),
