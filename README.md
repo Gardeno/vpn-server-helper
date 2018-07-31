@@ -15,7 +15,7 @@ virtualenv -p python3 venv && ./venv/bin/pip install -r requirements.txt
 sudo rm /etc/nginx/sites-enabled/default
 sudo ln -s /home/ubuntu/vpn-server-helper/conf/nginx/vpn.gardeno.global /etc/nginx/sites-enabled/vpn.gardeno.global
 sudo ln -s /home/ubuntu/vpn-server-helper/conf/supervisor/vpn.gardeno.global.conf /etc/supervisor/conf.d/vpn.gardeno.global.conf
-echo -e 'TUNNEL_SERVER="vpn.gardeno.global"\nTUNNEL_KEY="ENTER_YOUR_KEY_HERE"' > /home/ubuntu/vpn-server-helper/.env
+echo -e 'TUNNEL_SERVER="vpn.gardeno.global"\nSECRET_KEY="ENTER_YOUR_KEY_HERE"' > /home/ubuntu/vpn-server-helper/.env
 sudo mkdir /var/log/vpn.gardeno.global
 sudo chown www-data:www-data /var/log/vpn.gardeno.global/
 sudo service nginx restart && sudo service supervisor restart
