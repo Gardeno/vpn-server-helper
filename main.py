@@ -115,15 +115,15 @@ def main():
                     path_to_full_cert) as full_cert, open(path_to_full_key) as full_key, open(
                 PATH_TO_OPENVPN_TA_KEY, 'r') as base_ta, open(path_to_output_openvpn_config, 'w') as output_config:
                 output_config.write(base_config.read())
-                output_config.write('<ca>')
+                output_config.write('\n\n<ca>\n')
                 output_config.write(base_ca.read())
-                output_config.write('</ca>\n<cert>')
+                output_config.write('\n</ca>\n\n<cert>\n')
                 output_config.write(full_cert.read())
-                output_config.write('</cert>\n<key>')
+                output_config.write('\n</cert>\n\n<key>\n')
                 output_config.write(full_key.read())
-                output_config.write('</key>\n<tls-auth>')
+                output_config.write('\n</key>\n\n<tls-auth>\n')
                 output_config.write(base_ta.read())
-                output_config.write('</tls-auth>')
+                output_config.write('\n</tls-auth>\n\n')
         with open(path_to_client_config, 'w') as client_config:
             starting_ip_address = GROW_STARTING_NETWORK + grow_server_id * NUMBER_OF_SUBNETS
             # If the client_type is an administrator or core we always reserve the first two
