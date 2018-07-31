@@ -3,9 +3,10 @@ import subprocess
 import string
 import random
 import redis
-from os import getenv, path, getuid, getgid
+from os import getenv, path
 from dotenv import load_dotenv
-from shutil import copy, chown
+from shutil import chown
+import iptc
 
 from pathlib import Path
 
@@ -127,6 +128,27 @@ def main():
         with open(path_to_client_config, 'w') as client_config:
             # We add 1 because for some unknown reason adding 13.0.16.0/20 to iptables auto-resolves the DNS
             starting_ip_address = GROW_STARTING_NETWORK + (grow_server_id + 1) * NUMBER_OF_SUBNETS
+            # We will likely cache the iptables result/creation process but for now it's here
+            should_create_iptables_entry = True
+            rule_comment = 'grow-{}'.format(grow_identifier)
+            table = iptc.Table(iptc.Table.FILTER)
+            chain = iptc.Chain(table, "FORWARD")
+            for rule in chain.rules:
+                for match in rule.matches:
+                    if match.name == 'comment' and match.comment == rule_comment:
+                        should_create_iptables_entry = False
+            if should_create_iptables_entry:
+                print('Creating iptables entry!')
+                # Equivalent to the following comment
+                # iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
+                rule = iptc.Rule()
+                rule.src = "{}/{}".format(starting_ip_address, GROW_NETMASK)
+                rule.dst = "{}/{}".format(starting_ip_address, GROW_NETMASK)
+                rule.create_target('ACCEPT')
+                rule.protocol = 'all'
+                match = rule.create_match("comment")
+                match.comment = rule_comment
+                chain.insert_rule(rule)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
             if client_type == ALLOWED_CLIENT_TYPES[0]:
@@ -138,7 +160,9 @@ def main():
                 if ip_address_incrementor > NUMBER_OF_HOSTS:
                     return b"Exceeded the number of clients for this server", 429
             device_ip_address = str(starting_ip_address + ip_address_incrementor)
-            client_config.write('ifconfig-push {} {}\npush "route {} {}"\n'.format(device_ip_address, GROW_NETMASK, starting_ip_address, GROW_NETMASK))
+            client_config.write(
+                'ifconfig-push {} {}\npush "route {} {}"\n'.format(device_ip_address, GROW_NETMASK, starting_ip_address,
+                                                                   GROW_NETMASK))
         chown(path_to_client_config, user=OPENVPN_USER, group=OPENVPN_GROUP)
         with open(path_to_output_openvpn_config) as final_openvpn_config:
             return jsonify({"config": final_openvpn_config.read(),
