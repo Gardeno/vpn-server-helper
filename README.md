@@ -67,6 +67,6 @@ Some sample rules to conditionally allow traffic between subnets:
 ```
 iptables -I FORWARD -s 13.0.0.0/16 --jump REJECT --protocol all
 # Allow clients to access their own subnet
-iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.16.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-bc38b729-987e-4698-8251-ec056449cfb4"
-iptables -I FORWARD -s 13.0.48.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
+iptables -I FORWARD -s 13.0.32.0/20 -d 13.0.32.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-c08f0232-a9b9-4869-970f-fbb98cd2572d"
+iptables -I FORWARD -s 13.0.48.0/20 -d 13.0.48.0/20 --jump ACCEPT --protocol all -m comment --comment "grow-bc38b729-987e-4698-8251-ec056449cfb4"
 ```
