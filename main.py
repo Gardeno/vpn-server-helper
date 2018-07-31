@@ -133,6 +133,7 @@ def main():
             rule_comment = str('grow-{}'.format(grow_identifier))
             print('Rule comment: ')
             print(rule_comment)
+            print('Rule comment type: {}'.format(type(rule_comment)))
             table = iptc.Table(iptc.Table.FILTER)
             chain = iptc.Chain(table, "FORWARD")
             for rule in chain.rules:
@@ -150,9 +151,9 @@ def main():
                 print('Rule dst: {}'.format(rule.dst))
                 rule.create_target('ACCEPT')
                 rule.protocol = 0  # all
-                # match = rule.create_match("comment")
-                # match.comment = rule_comment.encode('utf-8')
-                # match.comment = "rule-here"
+                match = rule.create_match("comment")
+                match.comment = rule_comment
+                match.comment = "rule-here"
                 chain.insert_rule(rule)
             # If the client_type is an administrator or core we always reserve the first two
             # ip addresses. Otherwise we increment up to the limit for this grow's subnet
