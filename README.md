@@ -1,3 +1,11 @@
+# Client Side Integration
+
+For an administrator ... POST to `vpn.gardeno.global?secret_key=SERVER_SECRET_KEY`
+
+After receiving the response, take the `response["config"]` and run `echo -e "CONFIG_HERE" > ~/desired_config_location.ovpn`
+
+For sensors...see the relevant code in https://github.com/Gardeno/gardeno.global
+
 # Setting up the VPN
 
 - Install OpenVPN and OpenVPN CA according to the following guide: 
